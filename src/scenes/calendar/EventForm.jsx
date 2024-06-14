@@ -27,7 +27,7 @@ export default function EventForm({ showForm, setShowForm }) {
     // Récupérer les emails depuis l'API
     const fetchEmails = async () => {
       try {
-        const response = await axios.get('http://localhost:8085/utilisateurs/emails/entreprise/1');
+        const response = await axios.get('http://localhost:8085/utilisateurs/emails/entreprise/1/exclure/1');
         setEmails(response.data); // Supposons que response.data soit un tableau d'emails
       } catch (error) {
         console.error('Erreur lors de la récupération des emails', error);
