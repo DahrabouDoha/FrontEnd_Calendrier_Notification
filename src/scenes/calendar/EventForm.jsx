@@ -20,7 +20,7 @@ export default function EventForm({ showForm, setShowForm }) {
   const [emails, setEmails] = useState([]); // Etat pour les emails récupérés
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
-  const [eventMode, setEventMode] = useState("In-person"); // Par défaut: In-person
+  const [meetingType, setMeetingType] = useState("In-person"); // Par défaut: In-person
   const [remoteUrl, setRemoteUrl] = useState(""); // Ajout du state pour l'URL à distance
 
   useEffect(() => {
@@ -48,9 +48,12 @@ export default function EventForm({ showForm, setShowForm }) {
       time,
       date,
       participantEmails, // Utilisation du state pour les adresses email des participants
+      meetingType,
       remoteUrl
     };
+
     console.log("Formulaire soumis avec les données suivantes :", eventData);
+
     axios.post(`http://localhost:8085/events/add/1`, eventData)
     .then(response => {
       if (response.status === 201) {
@@ -96,6 +99,7 @@ export default function EventForm({ showForm, setShowForm }) {
                   setEventType(e.target.value);
                   setParticipantEmails([]);
                   setRemoteUrl("");
+                  console.log("Event Type sélectionné :", e.target.value);
                 }}
               >
                 <option value="Reunion">Reunion</option>
@@ -139,7 +143,11 @@ export default function EventForm({ showForm, setShowForm }) {
                   id="participantEmails"
                   multiple
                   value={participantEmails}
-                  onChange={(e) => setParticipantEmails(Array.from(e.target.selectedOptions, (option) => option.value))}
+                  onChange={(e) => {
+                    const selectedEmails = Array.from(e.target.selectedOptions, (option) => option.value);
+                    setParticipantEmails(selectedEmails);
+                    console.log("Emails des participants sélectionnés :", selectedEmails);
+                  }}
                   required
                 >
                   {emails.map((email) => (
@@ -150,29 +158,39 @@ export default function EventForm({ showForm, setShowForm }) {
                 </select>
               </div>
             )}
-            <div className="form-group">
-              <label htmlFor="eventMode">Event Mode</label>
-              <select
-                id="reunionType"
-                value={eventMode}
-                onChange={(e) => setEventMode(e.target.value)}
-              >
-                <option value="In-person">In-person</option>
-                <option value="Remote">Remote</option>
-              </select>
-              {eventMode === "Remote" && (
-                <div id="urlDiv" className="form-group">
-                  <label htmlFor="remoteUrl">Remote URL</label>
-                  <input
-                    id="remoteUrl"
-                    type="text"
-                    value={remoteUrl}
-                    onChange={(e) => setRemoteUrl(e.target.value)}
-                    required
-                  />
-                </div>
-              )}
-            </div>
+
+            {eventType === "Reunion" && (
+              <div className="form-group">
+                <label htmlFor="meetingType">Event Mode</label>
+                <select
+                  id="meetingType"
+                  value={meetingType}
+                  onChange={(e) => {
+                    setMeetingType(e.target.value);
+                    console.log("Mode de réunion sélectionné :", e.target.value);
+                  }}
+                >
+                  <option value="In-person">In-person</option>
+                  <option value="Remote">Remote</option>
+                </select>
+                {meetingType === "Remote" && (
+                  <div id="urlDiv" className="form-group">
+                    <label htmlFor="remoteUrl">Remote URL</label>
+                    <input
+                      id="remoteUrl"
+                      type="text"
+                      value={remoteUrl}
+                      onChange={(e) => {
+                        setRemoteUrl(e.target.value);
+                        console.log("URL distante saisie :", e.target.value);
+                      }}
+                      required
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+           
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
               <Button type="submit" variant="contained" color="primary">Add</Button>
               <Button variant="contained" color="secondary" onClick={handleClose}>Cancel</Button>
